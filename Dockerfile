@@ -56,15 +56,16 @@ RUN curl -o /usr/local/share/old-rds-ca-bundle.pem https://s3.amazonaws.com/rds-
       curl -o /usr/local/share/new-rds-ca-bundle.pem https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem && \
       cat /usr/local/share/old-rds-ca-bundle.pem /usr/local/share/new-rds-ca-bundle.pem > /usr/local/share/rds-combined-ca-bundle.pem
 
+# Create the container user account
+RUN useradd --uid 10001 --gid 10001 --home-dir /app --shell /sbin/nologin app
+
 # Copy compiled appliation from the builder.
-ADD . /app/src/autograph
-ADD autograph.yaml /app
-ADD version.json /app
-COPY --from=builder /go/bin /go/bin/
+ADD --chown=app:app . /app/src/autograph
+ADD --chown=app:app autograph.yaml /app
+ADD --chown=app:app version.json /app
+COPY --from=builder --chown=app:app /go/bin /go/bin/
 
 # Setup the worker and entrypoint.
-RUN useradd --uid 10001 --home-dir /app --shell /sbin/nologin app
 USER app
 WORKDIR /app
 CMD /go/bin/autograph
-

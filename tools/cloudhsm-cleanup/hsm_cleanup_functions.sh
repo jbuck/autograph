@@ -26,6 +26,8 @@ function set_cloudhsm_env_vars(){
     export CLOUDHSM_USER
     export CLOUDHSM_PASSWORD
     export CLOUDHSM_LABEL
+    export CLOUDHSM_PIN="${CLOUDHSM_USER}:${CLOUDHSM_PASSWORD}"
+    export CLOUDHSM_ROLE="crypto-user"
 }
 
 # open a psql shell in the autograph DB using env vars from set_db_env_vars
@@ -46,3 +48,6 @@ function list_inactive_ees_csv(){
          --dbname="$DB_NAME" \
          --command="COPY (SELECT id, label, hsm_handle, created_at FROM endentities WHERE is_current=FALSE AND created_at < (NOW()::DATE - 90) ORDER BY signer_id, created_at ASC) TO STDOUT CSV"
 }
+
+# Stop using sudo above
+# Run this within the container instead of on the instance
